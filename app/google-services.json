@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "211657356030",
+    "project_id": "readbookcompose",
+    "storage_bucket": "readbookcompose.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:211657356030:android:7ba3b88d7e3136447eabaf",
+        "android_client_info": {
+          "package_name": "com.gscapin.readbookcompose"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "211657356030-nmfgfbi1cddv60enu9c6r4b0ftu0mar3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXqtbD8gYIm6QI8o2PiuLY4Evldm07ngs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "211657356030-nmfgfbi1cddv60enu9c6r4b0ftu0mar3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
