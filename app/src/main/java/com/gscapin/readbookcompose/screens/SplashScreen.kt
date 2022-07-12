@@ -19,6 +19,7 @@ import androidx.navigation.NavController
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.draw.scale
+import com.google.firebase.auth.FirebaseAuth
 import com.gscapin.readbookcompose.components.ReaderLogo
 import com.gscapin.readbookcompose.navigation.ReaderScreens
 import kotlinx.coroutines.delay
@@ -35,6 +36,12 @@ fun SplashScreen(navController: NavController) {
         }))
 
         delay(2000L)
+
+        /*if(!FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()){
+            navController.navigate(ReaderScreens.HomeScreen.name)
+        }else{
+            navController.navigate(ReaderScreens.LoginScreen.name)
+        }*/
 
         navController.navigate(ReaderScreens.LoginScreen.name)
     }
