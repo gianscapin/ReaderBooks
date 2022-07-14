@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -151,8 +152,11 @@ fun TitleSection(modifier: Modifier = Modifier, label: String) {
 @Composable
 fun ReaderAppBar(
     title: String,
+    icon: ImageVector? = null,
     showProfile: Boolean = true,
-    navController: NavController
+    navController: NavController,
+    onBackArrowClicked: () -> Unit = {},
+    backgroundColor: Color? = null
 ) {
     TopAppBar(
         title = {
@@ -166,14 +170,22 @@ fun ReaderAppBar(
                             .scale(0.9f)
                             .padding(end = 5.dp)
                     )
+                }
+
+                    if(icon != null){
+                        Icon(imageVector = icon, contentDescription = "arrow back", tint = if(backgroundColor != null) Color.White else Color.Red.copy(0.7f), modifier = Modifier.clickable {
+                            onBackArrowClicked.invoke()
+                        })
+                        Spacer(modifier = Modifier.width(125.dp))
+                    }
                     Text(
                         text = title,
-                        color = Color.Red.copy(alpha = 0.7f),
+                        color = if(backgroundColor != null) Color.White else Color.Red.copy(0.7f),
                         style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)
                     )
                     Spacer(modifier = Modifier.width(150.dp))
 
-                }
+
             }
         },
         actions = {
@@ -182,14 +194,18 @@ fun ReaderAppBar(
                     navController.navigate(ReaderScreens.LoginScreen.name)
                 }
             }) {
-                Icon(
-                    imageVector = Icons.Filled.Logout,
-                    contentDescription = "Logout",
-                    tint = Color.Black
-                )
+                if(showProfile){
+                    Icon(
+                        imageVector = Icons.Filled.Logout,
+                        contentDescription = "Logout",
+                        tint = Color.Black
+                    )
+                }else{
+                    Box{}
+                }
             }
         },
-        backgroundColor = Color.Transparent,
+        backgroundColor = backgroundColor ?: Color.Transparent,
         elevation = 0.dp
     )
 }

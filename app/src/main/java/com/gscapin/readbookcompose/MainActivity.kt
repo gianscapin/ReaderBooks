@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.google.firebase.firestore.FirebaseFirestore
 import com.gscapin.readbookcompose.navigation.ReaderNavigation
 import com.gscapin.readbookcompose.ui.theme.ReadBookComposeTheme
@@ -26,6 +27,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            //this.window.statusBarColor = ContextCompat.getColor(this,R.color.white)
             ReadBookComposeTheme {
                 ReaderApp()
 

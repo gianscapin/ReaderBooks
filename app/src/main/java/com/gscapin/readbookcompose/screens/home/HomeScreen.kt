@@ -41,7 +41,7 @@ fun Home(navController: NavController = NavController(LocalContext.current)) {
         },
         floatingActionButton = {
             FABContent {
-
+                navController.navigate(ReaderScreens.SearchScreen.name)
             }
         }) {
         Surface(modifier = Modifier.fillMaxSize()) {
