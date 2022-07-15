@@ -23,16 +23,15 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.gscapin.readbookcompose.components.InputField
 import com.gscapin.readbookcompose.components.ReaderAppBar
 import com.gscapin.readbookcompose.model.Book
-import com.gscapin.readbookcompose.navigation.ReaderScreens
 
-@Preview
 @Composable
-fun SearchScreen(navController: NavController = NavController(LocalContext.current)) {
+fun SearchScreen(navController: NavController, viewModel: BookSearchViewModel = hiltViewModel()) {
     Scaffold(
         topBar = {
             ReaderAppBar(
@@ -52,9 +51,10 @@ fun SearchScreen(navController: NavController = NavController(LocalContext.curre
                 SearchForm(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-
+                        .padding(16.dp),
+                    viewModel = viewModel
+                ) { query ->
+                    viewModel.searchBooks(query)
                 }
 
                 Spacer(modifier = Modifier.height(13.dp))
@@ -112,6 +112,7 @@ fun BookRow(book: Book, navController: NavController) {
 @Composable
 fun SearchForm(
     modifier: Modifier = Modifier,
+    viewModel: BookSearchViewModel,
     loading: Boolean = false,
     hint: String = "Search",
     onSearch: (String) -> Unit = {}
