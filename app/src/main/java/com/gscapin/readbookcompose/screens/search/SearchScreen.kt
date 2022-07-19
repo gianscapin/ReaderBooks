@@ -10,6 +10,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -18,20 +19,22 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.gscapin.readbookcompose.components.AdjustSystemBarColor
 import com.gscapin.readbookcompose.components.InputField
 import com.gscapin.readbookcompose.components.ReaderAppBar
-import com.gscapin.readbookcompose.model.Book
+import com.gscapin.readbookcompose.model.Item
 
 @Composable
 fun SearchScreen(navController: NavController, viewModel: BookSearchViewModel = hiltViewModel()) {
+    AdjustSystemBarColor(Color(0xFFFF6666))
     Scaffold(
         topBar = {
             ReaderAppBar(
@@ -42,7 +45,7 @@ fun SearchScreen(navController: NavController, viewModel: BookSearchViewModel = 
                 onBackArrowClicked = {
                     navController.popBackStack()
                 },
-                backgroundColor = Color(0xfff44336)
+                backgroundColor = Color(0xFFFF6666)
             )
         }
     ) {
@@ -59,28 +62,31 @@ fun SearchScreen(navController: NavController, viewModel: BookSearchViewModel = 
 
                 Spacer(modifier = Modifier.height(13.dp))
 
-                BookList(navController)
+                BookList(navController, viewModel)
             }
         }
     }
 }
 
 @Composable
-fun BookList(navController: NavController) {
-    val listOfBooks = listOf(
-        Book(id = "adasda", title = "Hello again", authors = "All of us", notes = null),
-        Book(id = "adasda", title = "Hello", authors = "All of us", notes = null),
-        Book(id = "adasda", title = "Again", authors = "All of us", notes = null),
-    )
-    LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
-        items(items = listOfBooks) { book ->
-            BookRow(book, navController)
+fun BookList(navController: NavController, viewModel: BookSearchViewModel = hiltViewModel()) {
+
+
+    val listOfBooks = viewModel.list
+    if(viewModel.isLoading){
+        LinearProgressIndicator()
+    }else{
+        LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
+            items(items = listOfBooks) { book ->
+                BookRow(book, navController)
+            }
         }
     }
+
 }
 
 @Composable
-fun BookRow(book: Book, navController: NavController) {
+fun BookRow(book: Item, navController: NavController) {
     Card(
         modifier = Modifier
             .clickable {
@@ -94,14 +100,26 @@ fun BookRow(book: Book, navController: NavController) {
     ) {
         Row(Modifier.padding(5.dp), verticalAlignment = Alignment.Top) {
 
-            val imageUrl = "http://books.google.com/books/content?id=ogXfDwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
-            Image(painter = rememberAsyncImagePainter(model = imageUrl), contentDescription = "image", Modifier.width(80.dp))
+            Image(painter = rememberAsyncImagePainter(model = book.volumeInfo.imageLinks.smallThumbnail), contentDescription = "image", Modifier.width(80.dp))
             Column {
-                Text(text = book.title.toString(), overflow = TextOverflow.Ellipsis)
+                Text(text = book.volumeInfo.title, overflow = TextOverflow.Ellipsis)
                 Text(
-                    text = "Authors: ${book.authors.toString()}",
+                    text = "Authors: ${book.volumeInfo.authors}",
                     overflow = TextOverflow.Clip,
-                    style = MaterialTheme.typography.caption
+                    style = MaterialTheme.typography.caption,
+                    fontStyle = FontStyle.Italic
+                )
+                Text(
+                    text = "Date: ${book.volumeInfo.publishedDate}",
+                    overflow = TextOverflow.Clip,
+                    style = MaterialTheme.typography.caption,
+                    fontStyle = FontStyle.Italic
+                )
+                Text(
+                    text = "${book.volumeInfo.categories}",
+                    overflow = TextOverflow.Clip,
+                    style = MaterialTheme.typography.caption,
+                    fontStyle = FontStyle.Italic
                 )
             }
         }
@@ -130,7 +148,7 @@ fun SearchForm(
 
         InputField(
             valueState = searchQueryState,
-            labelId = "Search",
+            labelId = "Search the book that you want.",
             enabled = true,
             onAction = KeyboardActions {
                 if (!valid) return@KeyboardActions

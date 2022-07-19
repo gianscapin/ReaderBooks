@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.firebase.auth.FirebaseAuth
 import com.gscapin.readbookcompose.model.Book
 import com.gscapin.readbookcompose.navigation.ReaderScreens
@@ -345,5 +347,15 @@ fun RoundedButton(
         ) {
             Text(text = label, style = TextStyle(color = Color.White, fontSize = 15.sp))
         }
+    }
+}
+
+@Composable
+fun AdjustSystemBarColor(color: Color = Color.White) {
+    val systemUiController = rememberSystemUiController()
+    SideEffect {
+        systemUiController.setSystemBarsColor(
+            color = color
+        )
     }
 }

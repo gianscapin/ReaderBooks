@@ -1,12 +1,14 @@
 package com.gscapin.readbookcompose.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.gscapin.readbookcompose.screens.SplashScreen
 import com.gscapin.readbookcompose.screens.home.Home
 import com.gscapin.readbookcompose.screens.login.LoginScreen
+import com.gscapin.readbookcompose.screens.search.BookSearchViewModel
 import com.gscapin.readbookcompose.screens.search.SearchScreen
 import com.gscapin.readbookcompose.screens.stats.StatsScreen
 
@@ -32,7 +34,8 @@ fun ReaderNavigation() {
         }
 
         composable(ReaderScreens.SearchScreen.name){
-            SearchScreen(navController)
+            val viewModel = hiltViewModel<BookSearchViewModel>()
+            SearchScreen(navController, viewModel)
         }
 
     }

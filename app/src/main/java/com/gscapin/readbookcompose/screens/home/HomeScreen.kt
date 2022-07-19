@@ -35,6 +35,7 @@ import com.gscapin.readbookcompose.navigation.ReaderScreens
 
 @Composable
 fun Home(navController: NavController = NavController(LocalContext.current)) {
+    AdjustSystemBarColor()
     Scaffold(
         topBar = {
             ReaderAppBar("Reader", navController = navController)
