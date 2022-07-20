@@ -6,7 +6,7 @@ enum class ReaderScreens {
     CreateAccountScreen,
     HomeScreen,
     SearchScreen,
-    DetailsScreen,
+    BookDetailsScreen,
     StatsScreen,
     UpdateScreen;
 
@@ -18,7 +18,7 @@ enum class ReaderScreens {
                 CreateAccountScreen.name -> CreateAccountScreen
                 HomeScreen.name -> HomeScreen
                 SearchScreen.name -> SearchScreen
-                DetailsScreen.name -> DetailsScreen
+                BookDetailsScreen.name -> BookDetailsScreen
                 StatsScreen.name -> StatsScreen
                 UpdateScreen.name -> UpdateScreen
                 null -> HomeScreen

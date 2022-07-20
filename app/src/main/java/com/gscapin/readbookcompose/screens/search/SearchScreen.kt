@@ -31,6 +31,8 @@ import com.gscapin.readbookcompose.components.AdjustSystemBarColor
 import com.gscapin.readbookcompose.components.InputField
 import com.gscapin.readbookcompose.components.ReaderAppBar
 import com.gscapin.readbookcompose.model.Item
+import com.gscapin.readbookcompose.navigation.ReaderScreens
+import com.gscapin.readbookcompose.screens.details.BookDetailsScreen
 
 @Composable
 fun SearchScreen(navController: NavController, viewModel: BookSearchViewModel = hiltViewModel()) {
@@ -73,9 +75,15 @@ fun BookList(navController: NavController, viewModel: BookSearchViewModel = hilt
 
 
     val listOfBooks = viewModel.list
-    if(viewModel.isLoading){
-        LinearProgressIndicator()
-    }else{
+    if (viewModel.isLoading) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            LinearProgressIndicator()
+        }
+    } else {
         LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
             items(items = listOfBooks) { book ->
                 BookRow(book, navController)
@@ -90,7 +98,7 @@ fun BookRow(book: Item, navController: NavController) {
     Card(
         modifier = Modifier
             .clickable {
-
+                navController.navigate(ReaderScreens.BookDetailsScreen.name + "/${book.id}")
             }
             .fillMaxWidth()
             .height(100.dp)
@@ -100,7 +108,11 @@ fun BookRow(book: Item, navController: NavController) {
     ) {
         Row(Modifier.padding(5.dp), verticalAlignment = Alignment.Top) {
 
-            Image(painter = rememberAsyncImagePainter(model = book.volumeInfo.imageLinks.smallThumbnail), contentDescription = "image", Modifier.width(80.dp))
+            Image(
+                painter = rememberAsyncImagePainter(model = book.volumeInfo.imageLinks.smallThumbnail),
+                contentDescription = "image",
+                Modifier.width(80.dp)
+            )
             Column {
                 Text(text = book.volumeInfo.title, overflow = TextOverflow.Ellipsis)
                 Text(
