@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
@@ -34,7 +35,7 @@ import com.gscapin.readbookcompose.model.Book
 import com.gscapin.readbookcompose.navigation.ReaderScreens
 
 @Composable
-fun Home(navController: NavController = NavController(LocalContext.current)) {
+fun Home(navController: NavController, viewModel: HomeViewModel = hiltViewModel()) {
     AdjustSystemBarColor()
     Scaffold(
         topBar = {
@@ -46,20 +47,27 @@ fun Home(navController: NavController = NavController(LocalContext.current)) {
             }
         }) {
         Surface(modifier = Modifier.fillMaxSize()) {
-            HomeContent(navController)
+            HomeContent(navController, viewModel)
         }
     }
 }
 
 
 @Composable
-fun HomeContent(navController: NavController) {
+fun HomeContent(navController: NavController, viewModel: HomeViewModel) {
 
-    val listOfBooks = listOf(
-        Book(id = "adasda", title = "Hello again", authors = "All of us", notes = null),
-        Book(id = "adasda", title = "Hello", authors = "All of us", notes = null),
-        Book(id = "adasda", title = "Again", authors = "All of us", notes = null),
-    )
+
+
+    var listOfBooks = emptyList<Book>()
+
+    val currentUser = FirebaseAuth.getInstance().currentUser
+
+    if(!viewModel.data.value.data.isNullOrEmpty()){
+        listOfBooks = viewModel.data.value.data!!.toList().filter { book ->
+            book.userId == currentUser?.uid.toString()
+            }
+    }
+
     val currentUserName = if (!FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty())
         FirebaseAuth.getInstance().currentUser?.email?.split("@")?.get(0) else
         "N/A"
@@ -97,7 +105,7 @@ fun HomeContent(navController: NavController) {
 
 @Composable
 fun ReadingRightNowArea(books: List<Book>, navController: NavController) {
-    ListCard()
+    BookListArea(listOfBooks = books, navController = navController)
 
     TitleSection(label = "Reading list")
 
@@ -107,7 +115,7 @@ fun ReadingRightNowArea(books: List<Book>, navController: NavController) {
 @Composable
 fun BookListArea(listOfBooks: List<Book>, navController: NavController) {
     HorizontalScrollableComponent(listOfBooks){
-        // Card click, navigate to details
+        navController.navigate(ReaderScreens.UpdateScreen.name+"/$it")
     }
 }
 

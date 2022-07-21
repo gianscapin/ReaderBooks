@@ -1,7 +1,9 @@
 package com.gscapin.readbookcompose.di
 
+import com.google.firebase.firestore.FirebaseFirestore
 import com.gscapin.readbookcompose.network.BookApi
 import com.gscapin.readbookcompose.repository.BookRepository
+import com.gscapin.readbookcompose.repository.FireRepository
 import com.gscapin.readbookcompose.utils.Constants.BASE_URL
 import dagger.Module
 import dagger.Provides
@@ -19,6 +21,10 @@ object AppModule {
     @Singleton
     @Provides
     fun provideBookRepository(api: BookApi) = BookRepository(api)
+
+    @Singleton
+    @Provides
+    fun provideFireRepository() =  FireRepository(FirebaseFirestore.getInstance().collection("books"))
 
     @Singleton
     @Provides

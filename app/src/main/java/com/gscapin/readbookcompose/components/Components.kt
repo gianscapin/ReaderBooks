@@ -249,7 +249,7 @@ fun BookScore(score: Double) {
 
 @Composable
 fun ListCard(
-    book: Book = Book("asdasd", "Running", "Me and you", "Science Fiction"),
+    book: Book,
     onPressDetails: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -275,7 +275,7 @@ fun ListCard(
         ) {
             Row(horizontalArrangement = Arrangement.Center) {
                 Image(
-                    painter = rememberAsyncImagePainter("http://books.google.com/books/content?id=ogXfDwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"),
+                    painter = rememberAsyncImagePainter(book.photoUrl),
                     contentDescription = "book image",
                     modifier = Modifier
                         .height(140.dp)
