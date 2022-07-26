@@ -18,9 +18,7 @@ data class Book(
     var rating: Double? = null,
     var description: String? = null,
     var pageCount: String? = null,
-    @PropertyName("started_reading")
     var startedReading: Timestamp? = null,
-    @PropertyName("finished_reading")
     var finishedReading: Timestamp? = null,
     var userId: String? = null,
     @PropertyName("google_book_id")

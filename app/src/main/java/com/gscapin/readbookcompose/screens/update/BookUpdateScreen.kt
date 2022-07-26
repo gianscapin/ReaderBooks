@@ -1,6 +1,8 @@
 package com.gscapin.readbookcompose.screens.update
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -19,6 +21,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -26,6 +29,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FirebaseFirestore
 import com.gscapin.readbookcompose.components.InputField
 import com.gscapin.readbookcompose.components.RatingBar
 import com.gscapin.readbookcompose.components.ReaderAppBar
@@ -33,6 +37,7 @@ import com.gscapin.readbookcompose.components.updateBookButton
 import com.gscapin.readbookcompose.data.DataOrException
 import com.gscapin.readbookcompose.model.Book
 import com.gscapin.readbookcompose.screens.home.HomeViewModel
+import com.gscapin.readbookcompose.utils.TimeAgo
 
 @Composable
 fun BookUpdateScreen(
@@ -88,7 +93,11 @@ fun BookUpdateScreen(
 
                     }
                     Spacer(modifier = Modifier.height(10.dp))
-                    EnterThoughts(bookInfo = viewModel.data.value, bookItemId = bookItemId, navController = navController)
+                    EnterThoughts(
+                        bookInfo = viewModel.data.value,
+                        bookItemId = bookItemId,
+                        navController = navController
+                    )
                 }
             }
         }
@@ -127,45 +136,102 @@ private fun EnterThoughts(
                 mutableStateOf(false)
             }
             Row(modifier = Modifier.padding(bottom = 25.dp)) {
-                TextButton(
-                    enabled = if (!bookSelected.get(0).startedReading.toString()
-                            .isNullOrEmpty()
-                    ) true else false,
-                    onClick = {
-                        startedReading.value = !startedReading.value
-                    }) {
-                    Text(
-                        text = if (!startedReading.value) "Start reading" else "Started",
-                        style = MaterialTheme.typography.h6
-                    )
+                if (bookSelected.get(0).startedReading == null) {
+                    TextButton(
+                        enabled = if (!bookSelected.get(0).startedReading.toString()
+                                .isNullOrEmpty()
+                        ) true else false,
+                        onClick = {
+                            startedReading.value = !startedReading.value
+                        }) {
+                        Text(
+                            text = if (!startedReading.value) "Start reading" else "Started",
+                            style = MaterialTheme.typography.h6
+                        )
+                    }
                 }
 
-                TextButton(enabled = if (!bookSelected.get(0).finishedReading.toString()
-                        .isNullOrEmpty()
-                ) true else false,
-                    onClick = {
-                        finishedReading.value = !finishedReading.value
-                    }) {
-                    Text(
-                        text = if (!finishedReading.value) "Mark as read" else "Marked",
-                        style = MaterialTheme.typography.h6
-                    )
+                if (bookSelected.get(0).finishedReading == null) {
+                    TextButton(enabled = if (!bookSelected.get(0).finishedReading.toString()
+                            .isNullOrEmpty()
+                    ) true else false,
+                        onClick = {
+                            finishedReading.value = !finishedReading.value
+                        }) {
+                        Text(
+                            text = if (!finishedReading.value) "Mark as read" else "Marked",
+                            style = MaterialTheme.typography.h6
+                        )
+                    }
                 }
             }
 
-            Text(text = "Rating", style = MaterialTheme.typography.h6, modifier = Modifier.padding(bottom = 25.dp))
+            if (bookSelected.get(0).startedReading != null) {
+                Text(
+                    text = "Started at ${TimeAgo.getTime(bookSelected.get(0).startedReading!!.seconds.toInt())}",
+                    color = Color.LightGray,
+                    style = MaterialTheme.typography.h6,
+                    modifier = Modifier.padding(bottom = 5.dp)
+                )
+            }
 
-            val ratingBook = remember{
+            if (bookSelected.get(0).finishedReading != null) {
+                Text(
+                    text = "Finished at ${TimeAgo.getTime(bookSelected.get(0).finishedReading!!.seconds.toInt())}",
+                    color = Color.LightGray,
+                    style = MaterialTheme.typography.h6,
+                    modifier = Modifier.padding(bottom = 5.dp)
+                )
+            }
+
+            Text(
+                text = "Rating",
+                style = MaterialTheme.typography.h6,
+                modifier = Modifier.padding(bottom = 25.dp)
+            )
+
+            val ratingBook = remember {
                 mutableStateOf(bookSelected.get(0).rating!!.toInt())
             }
 
-            RatingBar(rating = ratingBook.value){
+            RatingBar(rating = ratingBook.value) {
                 ratingBook.value = it
             }
 
+            val bookBefore = bookSelected.get(0)
+            val updateNotes = bookBefore.notes.toString() != notes.value
+            val updateStartedReading = if (!bookBefore.startedReading.toString()
+                    .isNullOrEmpty() && startedReading.value
+            ) Timestamp.now() else null
+            val updateFinishedReading =
+                if (!bookBefore.finishedReading.toString().isNullOrEmpty() && finishedReading.value
+                ) Timestamp.now() else null
+            val updateRating = ratingBook.value != bookBefore.rating!!.toInt()
+            val context = LocalContext.current
+
+            val bookToUpdate = hashMapOf(
+                "finishedReading" to updateFinishedReading,
+                "startedReading" to updateStartedReading,
+                "rating" to ratingBook.value.toDouble(),
+                "notes" to notes.value
+            ).toMap()
+
+            val bookUpdate =
+                updateNotes || updateRating || startedReading.value || finishedReading.value
+
             Row(modifier = Modifier.padding(top = 100.dp)) {
                 updateBookButton(text = "Update") {
-
+                    if (bookUpdate) {
+                        FirebaseFirestore.getInstance().collection("books")
+                            .document(bookBefore.id!!).update(bookToUpdate)
+                            .addOnCompleteListener {
+                                showToast(context, "Book updated!")
+                                navController.popBackStack()
+                            }
+                            .addOnFailureListener {
+                                showToast(context, "Error has occurred.")
+                            }
+                    }
                 }
                 Spacer(modifier = Modifier.width(30.dp))
                 updateBookButton(text = "Cancel") {
@@ -176,6 +242,10 @@ private fun EnterThoughts(
 
         }
     }
+}
+
+fun showToast(context: Context, text: String) {
+    Toast.makeText(context, text, Toast.LENGTH_LONG).show()
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

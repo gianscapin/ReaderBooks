@@ -1,5 +1,6 @@
 package com.gscapin.readbookcompose.repository
 
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.Query
 import com.gscapin.readbookcompose.data.DataOrException
