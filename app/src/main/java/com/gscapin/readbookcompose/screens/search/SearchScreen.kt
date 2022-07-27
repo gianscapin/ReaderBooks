@@ -27,6 +27,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.gscapin.readbookcompose.R
 import com.gscapin.readbookcompose.components.AdjustSystemBarColor
 import com.gscapin.readbookcompose.components.InputField
 import com.gscapin.readbookcompose.components.ReaderAppBar
@@ -109,7 +110,7 @@ fun BookRow(book: Item, navController: NavController) {
         Row(Modifier.padding(5.dp), verticalAlignment = Alignment.Top) {
 
             Image(
-                painter = rememberAsyncImagePainter(model = book.volumeInfo.imageLinks.smallThumbnail),
+                painter = rememberAsyncImagePainter(model = if(book.volumeInfo.imageLinks.thumbnail != null)book.volumeInfo.imageLinks.thumbnail else R.drawable.ic_launcher_background),
                 contentDescription = "image",
                 Modifier.width(80.dp)
             )

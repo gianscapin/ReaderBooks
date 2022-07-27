@@ -153,7 +153,7 @@ private fun DetailsBook(data: Item, navController: NavController) {
                 rating = 0.0,
                 notes = "",
                 userId = FirebaseAuth.getInstance().currentUser!!.uid,
-                categories = data.volumeInfo.categories.toString(),
+                categories = if(data.volumeInfo.categories != null) data.volumeInfo.categories.toString() else "",
                 photoUrl = data.volumeInfo.imageLinks.thumbnail
             )
 

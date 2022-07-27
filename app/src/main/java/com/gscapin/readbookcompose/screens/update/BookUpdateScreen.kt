@@ -11,10 +11,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -23,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,6 +28,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
+import com.gscapin.readbookcompose.R
 import com.gscapin.readbookcompose.components.InputField
 import com.gscapin.readbookcompose.components.RatingBar
 import com.gscapin.readbookcompose.components.ReaderAppBar
@@ -168,7 +167,7 @@ private fun EnterThoughts(
 
             if (bookSelected.get(0).startedReading != null) {
                 Text(
-                    text = "Started at ${TimeAgo.getTime(bookSelected.get(0).startedReading!!.seconds.toInt())}",
+                    text = "Started on ${TimeAgo.getTime(bookSelected.get(0).startedReading!!.seconds.toInt())}",
                     color = Color.LightGray,
                     style = MaterialTheme.typography.h6,
                     modifier = Modifier.padding(bottom = 5.dp)
@@ -177,7 +176,7 @@ private fun EnterThoughts(
 
             if (bookSelected.get(0).finishedReading != null) {
                 Text(
-                    text = "Finished at ${TimeAgo.getTime(bookSelected.get(0).finishedReading!!.seconds.toInt())}",
+                    text = "Finished on ${TimeAgo.getTime(bookSelected.get(0).finishedReading!!.seconds.toInt())}",
                     color = Color.LightGray,
                     style = MaterialTheme.typography.h6,
                     modifier = Modifier.padding(bottom = 5.dp)
@@ -234,14 +233,52 @@ private fun EnterThoughts(
                     }
                 }
                 Spacer(modifier = Modifier.width(30.dp))
-                updateBookButton(text = "Cancel") {
-                    navController.popBackStack()
+                val dialog = remember {
+                    mutableStateOf(false)
+                }
+                if (dialog.value) {
+                    ShowAlertDialog(
+                        title = stringResource(id = R.string.delete_book) + "\n" + stringResource(
+                            id = R.string.action_delete
+                        ), dialog = dialog
+                    ) {
+                        FirebaseFirestore.getInstance().collection("books")
+                            .document(bookBefore.id!!).delete().addOnCompleteListener {
+                                showToast(context, "Book deleted.")
+                                navController.popBackStack()
+                            }
+                            .addOnFailureListener {
+                                showToast(context, "Book could not be deleted.")
+                            }
+                    }
+                }
+                updateBookButton(text = "Delete") {
+                    dialog.value = true
                 }
             }
 
 
         }
     }
+}
+
+@Composable
+fun ShowAlertDialog(title: String, dialog: MutableState<Boolean>, onYesPressed: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = {},
+        title = { Text(text = "Delete book", style = MaterialTheme.typography.h6, fontWeight = FontWeight.Bold) },
+        text = { Text(text = title) },
+        buttons = {
+            Row(modifier = Modifier.padding(8.dp), horizontalArrangement = Arrangement.Center) {
+                TextButton(onClick = { onYesPressed.invoke() }) {
+                    Text(text = "Yes")
+                }
+                TextButton(onClick = { dialog.value = false }) {
+                    Text(text = "No")
+                }
+            }
+        }
+    )
 }
 
 fun showToast(context: Context, text: String) {

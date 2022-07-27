@@ -311,7 +311,7 @@ fun ListCard(
                         modifier = Modifier.padding(bottom = 1.dp)
                     )
 
-                    BookScore(score = 3.5)
+                    BookScore(score = book.rating!!)
                 }
             }
             Text(
@@ -333,7 +333,7 @@ fun ListCard(
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.Bottom
         ) {
-            RoundedButton(label = "Reading", radius = 70)
+            RoundedButton(label = if(book.finishedReading != null) "Finished" else if(book.startedReading != null) "Reading" else "To read", radius = 70)
         }
 
     }
